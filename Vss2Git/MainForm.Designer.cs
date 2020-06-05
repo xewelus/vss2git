@@ -49,7 +49,6 @@
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.projectsTreeControl = new Hpdi.Vss2Git.ProjectsTreeControl();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.changesetGroupBox = new System.Windows.Forms.GroupBox();
 			this.label4 = new System.Windows.Forms.Label();
@@ -68,6 +67,8 @@
 			this.domainLabel = new System.Windows.Forms.Label();
 			this.outDirTextBox = new System.Windows.Forms.TextBox();
 			this.outDirLabel = new System.Windows.Forms.Label();
+			this.projectLabel = new System.Windows.Forms.ToolStripStatusLabel();
+			this.projectsTreeControl = new Hpdi.Vss2Git.ProjectsTreeControl();
 			this.vssGroupBox.SuspendLayout();
 			this.statusStrip.SuspendLayout();
 			this.tabControl1.SuspendLayout();
@@ -157,7 +158,7 @@
 			// 
 			// goButton
 			// 
-			this.goButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.goButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.goButton.Location = new System.Drawing.Point(423, 636);
 			this.goButton.Name = "goButton";
 			this.goButton.Size = new System.Drawing.Size(75, 23);
@@ -174,6 +175,7 @@
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel,
+            this.projectLabel,
             this.fileLabel,
             this.revisionLabel,
             this.changeLabel,
@@ -218,7 +220,7 @@
 			// 
 			// cancelButton
 			// 
-			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cancelButton.Location = new System.Drawing.Point(504, 636);
 			this.cancelButton.Name = "cancelButton";
@@ -230,6 +232,8 @@
 			// 
 			// tabControl1
 			// 
+			this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.tabControl1.Controls.Add(this.tabPage1);
 			this.tabControl1.Controls.Add(this.tabPage2);
 			this.tabControl1.Location = new System.Drawing.Point(5, 5);
@@ -252,6 +256,8 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.groupBox1.Controls.Add(this.projectsTreeControl);
 			this.groupBox1.Location = new System.Drawing.Point(3, 115);
 			this.groupBox1.Name = "groupBox1";
@@ -259,15 +265,6 @@
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Projects";
-			// 
-			// projectsTreeControl
-			// 
-			this.projectsTreeControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectsTreeControl.Location = new System.Drawing.Point(3, 16);
-			this.projectsTreeControl.Name = "projectsTreeControl";
-			this.projectsTreeControl.Size = new System.Drawing.Size(554, 464);
-			this.projectsTreeControl.TabIndex = 1;
-			this.projectsTreeControl.CheckedChanged += new System.EventHandler(this.projectsTreeControl_CheckedChanged);
 			// 
 			// tabPage2
 			// 
@@ -466,6 +463,20 @@
 			this.outDirLabel.TabIndex = 0;
 			this.outDirLabel.Text = "Directory";
 			// 
+			// projectLabel
+			// 
+			this.projectLabel.Name = "projectLabel";
+			this.projectLabel.Size = new System.Drawing.Size(0, 17);
+			// 
+			// projectsTreeControl
+			// 
+			this.projectsTreeControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectsTreeControl.Location = new System.Drawing.Point(3, 16);
+			this.projectsTreeControl.Name = "projectsTreeControl";
+			this.projectsTreeControl.Size = new System.Drawing.Size(554, 464);
+			this.projectsTreeControl.TabIndex = 1;
+			this.projectsTreeControl.CheckedChanged += new System.EventHandler(this.projectsTreeControl_CheckedChanged);
+			// 
 			// MainForm
 			// 
 			this.AcceptButton = this.goButton;
@@ -544,6 +555,7 @@
 		private System.Windows.Forms.Label outDirLabel;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private ProjectsTreeControl projectsTreeControl;
+		private System.Windows.Forms.ToolStripStatusLabel projectLabel;
 	}
 }
 

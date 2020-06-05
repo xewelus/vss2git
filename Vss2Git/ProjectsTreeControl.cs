@@ -45,6 +45,7 @@ namespace Hpdi.Vss2Git
 		}
 
 		private StringCollection selectedPaths;
+
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public StringCollection SelectedPaths
@@ -69,6 +70,15 @@ namespace Hpdi.Vss2Git
 		{
 			get;
 			set;
+		}
+
+		private bool canCheck = true;
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public bool CanCheck
+		{
+			get => this.canCheck;
+			set => this.canCheck = value;
 		}
 
 		public void RefreshProjects()
@@ -225,6 +235,8 @@ namespace Hpdi.Vss2Git
 		private void tvProjects_BeforeCheck(object sender, TreeViewCancelEventArgs e)
 		{
 			if (this.internalUpdate) return;
+			if (!this.CanCheck) return;
+
 			NodeInfo info = (NodeInfo)e.Node.Tag;
 			if (info.Project == null)
 			{

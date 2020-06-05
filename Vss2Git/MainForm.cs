@@ -57,7 +57,7 @@ namespace Hpdi.Vss2Git
 		private void goButton_Click(object sender, EventArgs e)
 		{
 			this.goButton.Enabled = false;
-			this.projectsTreeControl.Enabled = false;
+			this.projectsTreeControl.CanCheck = false;
 
 			this.WriteSettings();
 
@@ -133,8 +133,16 @@ namespace Hpdi.Vss2Git
         }
 
 		private void statusTimer_Tick(object sender, EventArgs e)
-        {
-	        this.statusLabel.Text = this.workQueue.LastStatus ?? "Idle";
+		{
+			if (this.runInfo == null)
+			{
+				this.projectLabel.Text = "";
+			}
+			else
+			{
+				this.projectLabel.Text = this.runInfo.GetProject();
+			}
+			this.statusLabel.Text = this.workQueue.LastStatus ?? "Idle";
 	        this.timeLabel.Text = string.Format("Elapsed: {0:HH:mm:ss}", new DateTime(this.workQueue.ActiveTime.Ticks));
 
 	        if (this.runInfo != null)
@@ -153,6 +161,7 @@ namespace Hpdi.Vss2Git
 		        if (this.workQueue.IsIdle)
 		        {
 			        this.runInfo.PostProcess();
+			        this.projectsTreeControl.UpdateNodes();
 
 					bool isEnd;
 			        try
@@ -173,8 +182,7 @@ namespace Hpdi.Vss2Git
 						this.workQueue.Abort();
 				        this.statusTimer.Enabled = false;
 				        this.goButton.Enabled = true;
-						this.projectsTreeControl.Enabled = true;
-				        this.projectsTreeControl.UpdateNodes();
+						this.projectsTreeControl.CanCheck = true;
 					}
 				}
 	        }

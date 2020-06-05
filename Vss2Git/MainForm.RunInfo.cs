@@ -247,6 +247,11 @@ namespace Hpdi.Vss2Git
 				}
 			}
 
+			public string GetProject()
+			{
+				return this.repoInfo?.VssPath;
+			}
+
 			public void SetCancelled()
 			{
 				if (this.repoInfo != null)
