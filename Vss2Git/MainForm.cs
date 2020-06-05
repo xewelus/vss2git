@@ -40,11 +40,17 @@ namespace Hpdi.Vss2Git
 	        this.InitializeComponent();
         }
 
-	    public static string GetProjectPath(string outputDir, string vssPath, bool isSuccess)
+	    public static string GetProjectPath(string outputDir, VssKey vssKey, bool isSuccess)
 	    {
 			string moveDir = isSuccess ? "_success" : "_fail";
 		    moveDir = Path.Combine(outputDir, moveDir);
-		    string projFolder = GetSafeDirName(vssPath);
+
+		    string projFolder = GetSafeDirName(vssKey.VssPath);
+		    if (vssKey.PhysicalName != null)
+		    {
+			    projFolder += "_" + vssKey.PhysicalName;
+		    }
+
 		    string projPath = Path.Combine(moveDir, projFolder);
 		    return projPath;
 	    }
@@ -98,15 +104,16 @@ namespace Hpdi.Vss2Git
                 df.Encoding = this.selectedEncoding;
                 VssDatabase db = df.Open();
 
-	            Queue<string> toProcess = new Queue<string>();
-	            foreach (string vssPath in this.projectsTreeControl.SelectedPaths)
+	            Queue<VssKey> toProcess = new Queue<VssKey>();
+	            foreach (string path in this.projectsTreeControl.SelectedPaths)
 	            {
-		            string projPath = GetProjectPath(outputDir, vssPath, true);
+					VssKey vssKey = new VssKey(path);
+					string projPath = GetProjectPath(outputDir, vssKey, true);
 		            if (!Directory.Exists(projPath))
 		            {
-			            toProcess.Enqueue(vssPath);
+			            toProcess.Enqueue(vssKey);
 		            }
-	            }
+				}
 
 				this.runInfo = new RunInfo(this, outputDir, commonLogger, db, encoding, errorLogger, this.workQueue, toProcess);
 	          

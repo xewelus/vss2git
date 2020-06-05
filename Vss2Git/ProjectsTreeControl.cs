@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
@@ -53,7 +54,7 @@ namespace Hpdi.Vss2Git
 			get
 			{
 				StringCollection collection = new StringCollection();
-				CollectCheckedNodeNames(collection, this.tvProjects.Nodes);
+				this.CollectCheckedNodeNames(collection, this.tvProjects.Nodes);
 				this.selectedPaths = collection;
 				return collection;
 			}
@@ -81,12 +82,15 @@ namespace Hpdi.Vss2Git
 			set => this.canCheck = value;
 		}
 
+		private readonly Dictionary<string, List<VssProject>> projectsByPaths = new Dictionary<string, List<VssProject>>();
+
 		public void RefreshProjects()
 		{
 			VssDatabaseFactory df = new VssDatabaseFactory(this.VSSDirectory);
 			df.Encoding = this.Encoding;
 			VssDatabase db = df.Open();
 
+			this.projectsByPaths.Clear();
 			this.tvProjects.Nodes.Clear();
 			if (db.RootProject != null)
 			{
@@ -104,7 +108,7 @@ namespace Hpdi.Vss2Git
 			this.internalUpdate = false;
 		}
 
-		private static void CollectCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
+		private void CollectCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
 		{
 			foreach (TreeNode node in nodes)
 			{
@@ -113,11 +117,12 @@ namespace Hpdi.Vss2Git
 					NodeInfo info = (NodeInfo)node.Tag;
 					if (info.Project != null)
 					{
-						collection.Add(info.Project.Path);
+						MainForm.VssKey vssKey = info.GetKey(this.projectsByPaths);
+						collection.Add(vssKey.ToCombinedPath());
 					}
 				}
 
-				CollectCheckedNodeNames(collection, node.Nodes);
+				this.CollectCheckedNodeNames(collection, node.Nodes);
 			}
 		}
 
@@ -128,16 +133,24 @@ namespace Hpdi.Vss2Git
 				NodeInfo info = (NodeInfo)node.Tag;
 				if (info?.Project != null)
 				{
-					string path = MainForm.GetProjectPath(this.outputDirectory, info.Project.Path, true);
+					MainForm.VssKey key = info.GetKey(this.projectsByPaths);
+
+					string name = info.Name;
+					if (key.PhysicalName != null)
+					{
+						name += $" ({key.PhysicalName})";
+					}
+
+					string path = MainForm.GetProjectPath(this.outputDirectory, key, true);
 					info.AlreadyExists = Directory.Exists(path);
 					if (info.AlreadyExists)
 					{
-						node.Text = $"{info.Name} [done]";
+						node.Text = $"{name} [done]";
 						node.ForeColor = Color.DarkGray;
 					}
 					else
 					{
-						node.Text = info.Name;
+						node.Text = name;
 						node.ForeColor = Color.Black;
 					}
 
@@ -190,6 +203,14 @@ namespace Hpdi.Vss2Git
 				{
 					node.Nodes.Add("");
 				}
+
+				List<VssProject> projects;
+				if (!this.projectsByPaths.TryGetValue(project.Path, out projects))
+				{
+					projects = new List<VssProject>();
+					this.projectsByPaths.Add(project.Path, projects);
+				}
+				projects.Add(project);
 			}
 
 			node.Tag = info;
@@ -254,6 +275,22 @@ namespace Hpdi.Vss2Git
 			{
 				this.Project = project;
 				this.Name = name;
+			}
+
+			public MainForm.VssKey GetKey(Dictionary<string, List<VssProject>> projectsByPaths)
+			{
+				List<VssProject> projects;
+				if (projectsByPaths.TryGetValue(this.Project.Path, out projects))
+				{
+					foreach (VssProject project in projects)
+					{
+						if (project != this.Project)
+						{
+							return new MainForm.VssKey(this.Project.Path, this.Project.PhysicalName);
+						}
+					}
+				}
+				return new MainForm.VssKey(this.Project.Path, null);
 			}
 		}
 	}

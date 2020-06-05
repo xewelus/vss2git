@@ -21,7 +21,7 @@ namespace Hpdi.Vss2Git
 			private readonly Encoding selectedEncoding;
 			private readonly Logger errorLogger;
 			private readonly WorkQueue workQueue;
-			private readonly Queue<string> toProcess;
+			private readonly Queue<VssKey> toProcess;
 			private RepoInfo repoInfo;
 			private bool Canceled;
 
@@ -38,7 +38,7 @@ namespace Hpdi.Vss2Git
 				Encoding selectedEncoding,
 				Logger errorLogger,
 				WorkQueue workQueue,
-				Queue<string> toProcess)
+				Queue<VssKey> toProcess)
 			{
 				this.form = form;
 				this.outputDir = outputDir;
@@ -57,13 +57,13 @@ namespace Hpdi.Vss2Git
 				if (this.Canceled) return false;
 				if (this.toProcess.Count <= 0) return false;
 
-				string vssPath = this.toProcess.Dequeue();
+				VssKey vssKey = this.toProcess.Dequeue();
 
-				this.Process(vssPath);
+				this.Process(vssKey);
 				return true;
 			}
 
-			private void Process(string vssPath)
+			private void Process(VssKey vssKey)
 			{
 				// clear processing folder and delete processing log file
 				this.DeleteProcessingFolderAndLog();
@@ -72,23 +72,25 @@ namespace Hpdi.Vss2Git
 
 				try
 				{
-					this.ProcessPath(vssPath, logger);
+					this.ProcessPath(vssKey, logger);
 				}
 				catch (Exception ex)
 				{
-					string msg = $"ERROR: {vssPath}\r\n{ex}";
+					string msg = $"ERROR: {vssKey}\r\n{ex}";
 
 					this.errorLogger.WriteLine(msg);
 					logger.WriteLine(msg);
 				}
 			}
 
-			private void ProcessPath(string vssPath, Logger logger)
+			private void ProcessPath(VssKey vssKey, Logger logger)
 			{
+				string vssPath = vssKey.VssPath;
+
 				VssItem item;
 				try
 				{
-					item = this.db.GetItem(vssPath);
+					item = this.db.GetItem(vssPath, vssKey.PhysicalName);
 				}
 				catch (VssPathException ex)
 				{
@@ -104,7 +106,7 @@ namespace Hpdi.Vss2Git
 				}
 
 				this.repoInfo = new RepoInfo();
-				this.repoInfo.VssPath = vssPath;
+				this.repoInfo.VssKey = vssKey;
 				this.repoInfo.Logger = logger;
 
 				this.repoInfo.RevisionAnalyzer = new RevisionAnalyzer(this.workQueue, logger, this.db);
@@ -212,7 +214,7 @@ namespace Hpdi.Vss2Git
 					}
 
 					bool isSuccess = exceptions == null || exceptions.Count == 0;
-					string projPath = GetProjectPath(this.outputDir, this.repoInfo.VssPath, isSuccess);
+					string projPath = GetProjectPath(this.outputDir, this.repoInfo.VssKey, isSuccess);
 
 					string moveDir = Path.GetDirectoryName(projPath);
 					if (moveDir != null && !Directory.Exists(moveDir))
@@ -241,7 +243,7 @@ namespace Hpdi.Vss2Git
 				}
 				catch (Exception ex)
 				{
-					string msg = $"POSTPROCESS ERROR: {this.repoInfo.VssPath}\r\n{ex}";
+					string msg = $"POSTPROCESS ERROR: {this.repoInfo.VssKey}\r\n{ex}";
 					if (this.repoInfo.Logger != null)
 					{
 						this.repoInfo.Logger.WriteLine(msg);
@@ -261,7 +263,7 @@ namespace Hpdi.Vss2Git
 
 			public string GetProject()
 			{
-				return this.repoInfo?.VssPath;
+				return this.repoInfo?.VssKey.ToString();
 			}
 
 			public void SetCancelled()
@@ -296,7 +298,7 @@ namespace Hpdi.Vss2Git
 				public RevisionAnalyzer RevisionAnalyzer;
 				public ChangesetBuilder ChangesetBuilder;
 				public Logger Logger;
-				public string VssPath;
+				public VssKey VssKey;
 				public bool Canceled;
 
 				public void Dispose()
@@ -307,6 +309,49 @@ namespace Hpdi.Vss2Git
 						this.Logger = null;
 					}
 				}
+			}
+		}
+
+		public class VssKey
+		{
+			public readonly string VssPath;
+			public readonly string PhysicalName;
+
+			public VssKey(string path)
+			{
+				string[] parts = path.Split('|');
+				string vssPath = parts[0];
+				string physicalName = null;
+				if (parts.Length > 1)
+				{
+					physicalName = parts[1];
+				}
+				this.VssPath = vssPath;
+				this.PhysicalName = physicalName;
+			}
+
+			public VssKey(string vssPath, string physicalName)
+			{
+				this.VssPath = vssPath;
+				this.PhysicalName = physicalName;
+			}
+
+			public string ToCombinedPath()
+			{
+				if (this.PhysicalName == null)
+				{
+					return this.VssPath;
+				}
+				return $"{this.VssPath}|{this.PhysicalName}";
+			}
+
+			public override string ToString()
+			{
+				if (string.IsNullOrEmpty(this.PhysicalName))
+				{
+					return this.VssPath;
+				}
+				return $"{this.VssPath} ({this.PhysicalName})";
 			}
 		}
 	}
