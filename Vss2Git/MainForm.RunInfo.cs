@@ -23,6 +23,7 @@ namespace Hpdi.Vss2Git
 			private readonly WorkQueue workQueue;
 			private readonly Queue<string> toProcess;
 			private RepoInfo repoInfo;
+			private bool Canceled;
 
 			public RevisionAnalyzer RevisionAnalyzer => this.repoInfo?.RevisionAnalyzer;
 			public ChangesetBuilder ChangesetBuilder => this.repoInfo?.ChangesetBuilder;
@@ -53,6 +54,7 @@ namespace Hpdi.Vss2Git
 
 			public bool StartNext()
 			{
+				if (this.Canceled) return false;
 				if (this.toProcess.Count <= 0) return false;
 
 				string vssPath = this.toProcess.Dequeue();
@@ -254,6 +256,7 @@ namespace Hpdi.Vss2Git
 
 			public void SetCancelled()
 			{
+				this.Canceled = true;
 				if (this.repoInfo != null)
 				{
 					this.repoInfo.Canceled = true;
