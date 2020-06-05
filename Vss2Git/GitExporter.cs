@@ -575,17 +575,97 @@ namespace Hpdi.Vss2Git
 
         private bool CommitChangeset(GitWrapper git, Changeset changeset)
         {
-            var result = false;
+	        string comment = changeset.Comment ?? this.DefaultComment;
+			if (string.IsNullOrEmpty(comment))
+			{
+				comment = "** " + GetComment(changeset, 155);
+			}
+
+			var result = false;
             AbortRetryIgnore(delegate
             {
                 result = git.AddAll() &&
                     git.Commit(changeset.User, GetEmail(changeset.User),
-                    changeset.Comment ?? DefaultComment, changeset.DateTime);
+                               comment ?? DefaultComment, changeset.DateTime);
             });
             return result;
         }
 
-        private bool RetryCancel(ThreadStart work)
+	    private static string GetComment(Changeset changeset, int maxLength)
+	    {
+		    StringBuilder sb = new StringBuilder();
+
+		    HashSet<string> names = new HashSet<string>();
+			string prevComment = null;
+			string result;
+
+		    result = AppendRevisions(sb, changeset, VssActionType.Add, names, maxLength, ref prevComment);
+		    if (result != null) return result;
+
+		    result = AppendRevisions(sb, changeset, VssActionType.Edit, names, maxLength, ref prevComment);
+		    if (result != null) return result;
+
+			result = AppendRevisions(sb, changeset, null, names, maxLength, ref prevComment);
+		    if (result != null) return result;
+
+		    result = AppendRevisions(sb, changeset, VssActionType.Create, names, maxLength, ref prevComment); // create last
+		    if (result != null) return result;
+
+			return sb.ToString();
+	    }
+
+	    private static string AppendRevisions(
+		    StringBuilder sb, 
+		    Changeset changeset, 
+		    VssActionType? actionType,
+		    HashSet<string> names,
+			int maxLength, 
+		    ref string prevComment)
+	    {
+		    foreach (Revision revision in changeset.Revisions)
+		    {
+			    if (actionType == null && revision.Action.Type == VssActionType.Create) continue;
+
+				if (actionType == null || revision.Action.Type == actionType)
+			    {
+				    string name;
+				    if (revision.Action is VssNamedAction)
+				    {
+					    VssNamedAction namedAction = (VssNamedAction)revision.Action;
+					    name = namedAction.Name.LogicalName;
+				    }
+				    else
+				    {
+					    name = revision.Item.LogicalName;
+				    }
+
+				    if (revision.Action.Type == VssActionType.Delete || revision.Action.Type == VssActionType.Destroy)
+				    {
+					    name = "-" + name;
+				    }
+
+				    if (names.Contains(name)) continue;
+				    names.Add(name);
+
+				    if (sb.Length > 0)
+				    {
+					    sb.Append(", ");
+				    }
+
+					sb.Append(name);
+
+				    if (sb.Length > maxLength)
+				    {
+					    return prevComment + "...";
+				    }
+
+				    prevComment = sb.ToString();
+			    }
+		    }
+		    return null;
+	    }
+
+	    private bool RetryCancel(ThreadStart work)
         {
             return AbortRetryIgnore(work, MessageBoxButtons.RetryCancel);
         }
