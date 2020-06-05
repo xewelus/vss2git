@@ -43,6 +43,7 @@
 			this.tvProjects.Name = "tvProjects";
 			this.tvProjects.Size = new System.Drawing.Size(560, 455);
 			this.tvProjects.TabIndex = 0;
+			this.tvProjects.BeforeCheck += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvProjects_BeforeCheck);
 			this.tvProjects.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvProjects_AfterCheck);
 			this.tvProjects.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvProjects_BeforeExpand);
 			// 

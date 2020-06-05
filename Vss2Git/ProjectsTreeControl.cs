@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Hpdi.VssLogicalLib;
@@ -17,6 +18,7 @@ namespace Hpdi.Vss2Git
 		}
 
 		public event EventHandler CheckedChanged;
+		private bool internalUpdate;
 
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -26,6 +28,7 @@ namespace Hpdi.Vss2Git
 			set;
 		}
 
+		private string outputDirectory;
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string OutputDirectory
@@ -98,7 +101,10 @@ namespace Hpdi.Vss2Git
 				if (node.Checked)
 				{
 					NodeInfo info = (NodeInfo)node.Tag;
-					collection.Add(info.Project.Path);
+					if (info.Project != null)
+					{
+						collection.Add(info.Project.Path);
+					}
 				}
 
 				CollectCheckedNodeNames(collection, node.Nodes);
@@ -110,7 +116,7 @@ namespace Hpdi.Vss2Git
 			foreach (TreeNode node in nodes)
 			{
 				NodeInfo info = (NodeInfo)node.Tag;
-				if (info != null)
+				if (info?.Project != null)
 				{
 					string path = MainForm.GetProjectPath(this.outputDirectory, info.Project.Path, true);
 					info.AlreadyExists = Directory.Exists(path);
@@ -150,20 +156,30 @@ namespace Hpdi.Vss2Git
 		{
 			TreeNode node = nodes.Add(name);
 			NodeInfo info = new NodeInfo(project, name);
-
-			bool hasProjects = false;
-			foreach (VssProject p in project.Projects)
+			if (project == null)
 			{
-				if (p.IsProject)
-				{
-					hasProjects = true;
-					break;
-				}
+				node.ForeColor = Color.DarkGray;
 			}
-
-			if (hasProjects)
+			else
 			{
-				node.Nodes.Add("");
+				bool hasSome = false;
+				foreach (VssProject p in project.Projects)
+				{
+					if (p.IsProject)
+					{
+						hasSome = true;
+						break;
+					}
+				}
+				if (project.Files.Any())
+				{
+					hasSome = true;
+				}
+
+				if (hasSome)
+				{
+					node.Nodes.Add("");
+				}
 			}
 
 			node.Tag = info;
@@ -188,6 +204,11 @@ namespace Hpdi.Vss2Git
 					}
 				}
 
+				foreach (VssFile file in info.Project.Files)
+				{
+					this.AddNode(e.Node.Nodes, null, file.Name);
+				}
+
 				if (needUpdate)
 				{
 					this.UpdateNodes();
@@ -195,13 +216,20 @@ namespace Hpdi.Vss2Git
 			}
 		}
 
-		private bool internalUpdate;
-		private string outputDirectory;
-
 		private void tvProjects_AfterCheck(object sender, TreeViewEventArgs e)
 		{
 			if (this.internalUpdate) return;
 			this.CheckedChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void tvProjects_BeforeCheck(object sender, TreeViewCancelEventArgs e)
+		{
+			if (this.internalUpdate) return;
+			NodeInfo info = (NodeInfo)e.Node.Tag;
+			if (info.Project == null)
+			{
+				e.Cancel = true;
+			}
 		}
 
 		private class NodeInfo
