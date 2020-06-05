@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text;
@@ -70,7 +69,7 @@ namespace Hpdi.Vss2Git
 		private void UpdateCheckedNodeNames()
 		{
 			this.internalUpdate = true;
-			UpdateCheckedNodeNames(this.selectedPaths, this.tvProjects.Nodes);
+			this.UpdateCheckedNodeNames(this.selectedPaths, this.tvProjects.Nodes);
 			this.internalUpdate = false;
 		}
 
@@ -88,19 +87,26 @@ namespace Hpdi.Vss2Git
 			}
 		}
 
-		private static void UpdateCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
+		private void UpdateCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
 		{
 			foreach (TreeNode node in nodes)
 			{
 				NodeInfo info = (NodeInfo)node.Tag;
 				if (info != null)
 				{
-					if (collection.Contains(info.Project.Path))
+					foreach (string projPath in collection)
 					{
-						node.Checked = true;
+						if (projPath == info.Project.Path)
+						{
+							node.Checked = true;
+						}
+						else if (projPath.Contains(info.Project.Path + "/"))
+						{
+							node.Expand();
+						}
 					}
 				}
-				UpdateCheckedNodeNames(collection, node.Nodes);
+				this.UpdateCheckedNodeNames(collection, node.Nodes);
 			}
 		}
 
@@ -133,11 +139,15 @@ namespace Hpdi.Vss2Git
 			return node;
 		}
 
+		private bool isExpanding;
 		private void tvProjects_BeforeExpand(object sender, TreeViewCancelEventArgs e)
 		{
+			this.isExpanding = true;
 			NodeInfo info = (NodeInfo)e.Node.Tag;
 			if (!info.IsFilled)
 			{
+				info.IsFilled = true;
+
 				bool needUpdate = false;
 				e.Node.Nodes.Clear();
 				foreach (VssProject p in info.Project.Projects)
@@ -153,9 +163,8 @@ namespace Hpdi.Vss2Git
 				{
 					this.UpdateCheckedNodeNames();
 				}
-
-				info.IsFilled = true;
 			}
+			this.isExpanding = false;
 		}
 
 		private bool internalUpdate;
