@@ -3,3 +3,5 @@
 bin/
 obj/
 Vss2GitSetup*.exe
+_ReSharper.Caches/
+Vss2Git.sln.DotSettings.user
