@@ -30,16 +30,18 @@ namespace Hpdi.Vss2Git
 
         private const string sectionSeparator = "------------------------------------------------------------";
 
+	    public readonly string Filename;
         private readonly Logger commonLogger;
-        private readonly Stream baseStream;
+		private readonly Stream baseStream;
 		private readonly Encoding encoding;
         private readonly IFormatProvider formatProvider;
 
         public Logger(string filename, Logger commonLogger)
             : this(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
+	        this.Filename = filename;
 	        this.commonLogger = commonLogger;
-        }
+		}
 
         public Logger(Stream baseStream)
             : this(baseStream, Encoding.Default, CultureInfo.InvariantCulture)

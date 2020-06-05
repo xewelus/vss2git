@@ -248,6 +248,12 @@ namespace Hpdi.Vss2Git
 			public void Dispose()
 			{
 				this.errorLogger.Dispose();
+				FileInfo fileInfo = new FileInfo(this.errorLogger.Filename);
+				if (fileInfo.Length == 0)
+				{
+					fileInfo.Delete();
+				}
+
 				this.commonLogger.Dispose();
 
 				if (this.repoInfo != null)
