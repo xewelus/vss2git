@@ -50,6 +50,7 @@ namespace Hpdi.Vss2Git
 			{
 				StringCollection collection = new StringCollection();
 				CollectCheckedNodeNames(collection, this.tvProjects.Nodes);
+				this.selectedPaths = collection;
 				return collection;
 			}
 			set
