@@ -125,10 +125,14 @@ namespace Hpdi.Vss2Git
 
 	    private void cancelButton_Click(object sender, EventArgs e)
         {
+	        if (this.runInfo != null)
+	        {
+		        this.runInfo.SetCancelled();
+	        }
 	        this.workQueue.Abort();
         }
 
-        private void statusTimer_Tick(object sender, EventArgs e)
+		private void statusTimer_Tick(object sender, EventArgs e)
         {
 	        this.statusLabel.Text = this.workQueue.LastStatus ?? "Idle";
 	        this.timeLabel.Text = string.Format("Elapsed: {0:HH:mm:ss}", new DateTime(this.workQueue.ActiveTime.Ticks));

@@ -194,6 +194,8 @@ namespace Hpdi.Vss2Git
 
 				try
 				{
+					if (this.repoInfo.Canceled) return;
+
 					ClearDir(new DirectoryInfo(this.processDir), false, path => !path.StartsWith(".git"));
 
 					ICollection<Exception> exceptions = this.workQueue.FetchExceptions();
@@ -245,6 +247,14 @@ namespace Hpdi.Vss2Git
 				}
 			}
 
+			public void SetCancelled()
+			{
+				if (this.repoInfo != null)
+				{
+					this.repoInfo.Canceled = true;
+				}
+			}
+
 			public void Dispose()
 			{
 				this.errorLogger.Dispose();
@@ -269,6 +279,7 @@ namespace Hpdi.Vss2Git
 				public ChangesetBuilder ChangesetBuilder;
 				public Logger Logger;
 				public string VssPath;
+				public bool Canceled;
 
 				public void Dispose()
 				{
