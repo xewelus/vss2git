@@ -40,7 +40,16 @@ namespace Hpdi.Vss2Git
 	        this.InitializeComponent();
         }
 
-        private Logger OpenLog(string filename)
+	    public static string GetProjectPath(string outputDir, string vssPath, bool isSuccess)
+	    {
+			string moveDir = isSuccess ? "_success" : "_fail";
+		    moveDir = Path.Combine(outputDir, moveDir);
+		    string projFolder = GetSafeDirName(vssPath);
+		    string projPath = Path.Combine(moveDir, projFolder);
+		    return projPath;
+	    }
+
+		private Logger OpenLog(string filename)
         {
             return string.IsNullOrEmpty(filename) ? Logger.Null : new Logger(filename, null);
         }
@@ -92,7 +101,11 @@ namespace Hpdi.Vss2Git
 	            Queue<string> toProcess = new Queue<string>();
 	            foreach (string vssPath in this.projectsTreeControl.SelectedPaths)
 	            {
-		            toProcess.Enqueue(vssPath);
+		            string projPath = GetProjectPath(outputDir, vssPath, true);
+		            if (!Directory.Exists(projPath))
+		            {
+			            toProcess.Enqueue(vssPath);
+		            }
 	            }
 
 				this.runInfo = new RunInfo(this, outputDir, commonLogger, db, encoding, errorLogger, this.workQueue, toProcess);
@@ -109,7 +122,6 @@ namespace Hpdi.Vss2Git
 				this.ShowException(ex);
             }
         }
-
 
 	    private void cancelButton_Click(object sender, EventArgs e)
         {
@@ -158,6 +170,7 @@ namespace Hpdi.Vss2Git
 				        this.statusTimer.Enabled = false;
 				        this.goButton.Enabled = true;
 						this.projectsTreeControl.Enabled = true;
+				        this.projectsTreeControl.UpdateNodes();
 					}
 				}
 	        }
@@ -255,6 +268,11 @@ namespace Hpdi.Vss2Git
 		private void vssDirTextBox_TextChanged(object sender, EventArgs e)
 		{
 			this.projectsTreeControl.VSSDirectory = this.vssDirTextBox.Text.Trim();
+		}
+
+	    private void outDirTextBox_TextChanged(object sender, EventArgs e)
+	    {
+		    this.projectsTreeControl.OutputDirectory = this.outDirTextBox.Text.Trim();
 		}
 
 		private void encodingComboBox_SelectedIndexChanged(object sender, EventArgs e)

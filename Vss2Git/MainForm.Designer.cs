@@ -49,6 +49,7 @@
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.projectsTreeControl = new Hpdi.Vss2Git.ProjectsTreeControl();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.changesetGroupBox = new System.Windows.Forms.GroupBox();
 			this.label4 = new System.Windows.Forms.Label();
@@ -67,7 +68,6 @@
 			this.domainLabel = new System.Windows.Forms.Label();
 			this.outDirTextBox = new System.Windows.Forms.TextBox();
 			this.outDirLabel = new System.Windows.Forms.Label();
-			this.projectsTreeControl = new Hpdi.Vss2Git.ProjectsTreeControl();
 			this.vssGroupBox.SuspendLayout();
 			this.statusStrip.SuspendLayout();
 			this.tabControl1.SuspendLayout();
@@ -260,6 +260,15 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Projects";
 			// 
+			// projectsTreeControl
+			// 
+			this.projectsTreeControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectsTreeControl.Location = new System.Drawing.Point(3, 16);
+			this.projectsTreeControl.Name = "projectsTreeControl";
+			this.projectsTreeControl.Size = new System.Drawing.Size(554, 464);
+			this.projectsTreeControl.TabIndex = 1;
+			this.projectsTreeControl.CheckedChanged += new System.EventHandler(this.projectsTreeControl_CheckedChanged);
+			// 
 			// tabPage2
 			// 
 			this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
@@ -446,6 +455,7 @@
 			this.outDirTextBox.Name = "outDirTextBox";
 			this.outDirTextBox.Size = new System.Drawing.Size(460, 20);
 			this.outDirTextBox.TabIndex = 1;
+			this.outDirTextBox.TextChanged += new System.EventHandler(this.outDirTextBox_TextChanged);
 			// 
 			// outDirLabel
 			// 
@@ -455,15 +465,6 @@
 			this.outDirLabel.Size = new System.Drawing.Size(49, 13);
 			this.outDirLabel.TabIndex = 0;
 			this.outDirLabel.Text = "Directory";
-			// 
-			// projectsTreeControl
-			// 
-			this.projectsTreeControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectsTreeControl.Location = new System.Drawing.Point(3, 16);
-			this.projectsTreeControl.Name = "projectsTreeControl";
-			this.projectsTreeControl.Size = new System.Drawing.Size(554, 464);
-			this.projectsTreeControl.TabIndex = 1;
-			this.projectsTreeControl.CheckedChanged += new System.EventHandler(this.projectsTreeControl_CheckedChanged);
 			// 
 			// MainForm
 			// 

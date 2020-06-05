@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Hpdi.VssLogicalLib;
@@ -24,6 +26,21 @@ namespace Hpdi.Vss2Git
 			set;
 		}
 
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public string OutputDirectory
+		{
+			get
+			{
+				return this.outputDirectory;
+			}
+			set
+			{
+				this.outputDirectory = value;
+				this.UpdateNodes();
+			}
+		}
+
 		private StringCollection selectedPaths;
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -38,7 +55,7 @@ namespace Hpdi.Vss2Git
 			set
 			{
 				this.selectedPaths = value;
-				this.UpdateCheckedNodeNames();
+				this.UpdateNodes();
 			}
 		}
 
@@ -66,10 +83,10 @@ namespace Hpdi.Vss2Git
 			this.tvProjects.Enabled = true;
 		}
 
-		private void UpdateCheckedNodeNames()
+		public void UpdateNodes()
 		{
 			this.internalUpdate = true;
-			this.UpdateCheckedNodeNames(this.selectedPaths, this.tvProjects.Nodes);
+			this.UpdateNodes(this.selectedPaths, this.tvProjects.Nodes);
 			this.internalUpdate = false;
 		}
 
@@ -87,13 +104,26 @@ namespace Hpdi.Vss2Git
 			}
 		}
 
-		private void UpdateCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
+		private void UpdateNodes(StringCollection collection, TreeNodeCollection nodes)
 		{
 			foreach (TreeNode node in nodes)
 			{
 				NodeInfo info = (NodeInfo)node.Tag;
 				if (info != null)
 				{
+					string path = MainForm.GetProjectPath(this.outputDirectory, info.Project.Path, true);
+					info.AlreadyExists = Directory.Exists(path);
+					if (info.AlreadyExists)
+					{
+						node.Text = $"{info.Name} [done]";
+						node.ForeColor = Color.DarkGray;
+					}
+					else
+					{
+						node.Text = info.Name;
+						node.ForeColor = Color.Black;
+					}
+
 					foreach (string projPath in collection)
 					{
 						if (projPath == info.Project.Path)
@@ -106,7 +136,7 @@ namespace Hpdi.Vss2Git
 						}
 					}
 				}
-				this.UpdateCheckedNodeNames(collection, node.Nodes);
+				this.UpdateNodes(collection, node.Nodes);
 			}
 		}
 
@@ -118,7 +148,7 @@ namespace Hpdi.Vss2Git
 		private TreeNode AddNode(TreeNodeCollection nodes, VssProject project, string name)
 		{
 			TreeNode node = nodes.Add(name);
-			NodeInfo info = new NodeInfo(project);
+			NodeInfo info = new NodeInfo(project, name);
 
 			bool hasProjects = false;
 			foreach (VssProject p in project.Projects)
@@ -139,10 +169,8 @@ namespace Hpdi.Vss2Git
 			return node;
 		}
 
-		private bool isExpanding;
 		private void tvProjects_BeforeExpand(object sender, TreeViewCancelEventArgs e)
 		{
-			this.isExpanding = true;
 			NodeInfo info = (NodeInfo)e.Node.Tag;
 			if (!info.IsFilled)
 			{
@@ -161,13 +189,14 @@ namespace Hpdi.Vss2Git
 
 				if (needUpdate)
 				{
-					this.UpdateCheckedNodeNames();
+					this.UpdateNodes();
 				}
 			}
-			this.isExpanding = false;
 		}
 
 		private bool internalUpdate;
+		private string outputDirectory;
+
 		private void tvProjects_AfterCheck(object sender, TreeViewEventArgs e)
 		{
 			if (this.internalUpdate) return;
@@ -177,10 +206,13 @@ namespace Hpdi.Vss2Git
 		private class NodeInfo
 		{
 			public readonly VssProject Project;
+			public readonly string Name;
 			public bool IsFilled;
-			public NodeInfo(VssProject project)
+			public bool AlreadyExists;
+			public NodeInfo(VssProject project, string name)
 			{
 				this.Project = project;
+				this.Name = name;
 			}
 		}
 	}

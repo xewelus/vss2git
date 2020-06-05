@@ -53,8 +53,6 @@ namespace Hpdi.Vss2Git
 
 			public bool StartNext()
 			{
-				
-
 				if (this.toProcess.Count <= 0) return false;
 
 				string vssPath = this.toProcess.Dequeue();
@@ -196,20 +194,18 @@ namespace Hpdi.Vss2Git
 
 				try
 				{
-					ICollection<Exception> exceptions = this.workQueue.FetchExceptions();
-
-					string moveDir = exceptions == null || exceptions.Count == 0 ? "_success" : "_fail";
-					moveDir = Path.Combine(this.outputDir, moveDir);
-
 					ClearDir(new DirectoryInfo(this.processDir), false, path => !path.StartsWith(".git"));
 
-					if (!Directory.Exists(moveDir))
+					ICollection<Exception> exceptions = this.workQueue.FetchExceptions();
+					bool isSuccess = exceptions == null || exceptions.Count == 0;
+					string projPath = GetProjectPath(this.outputDir, this.repoInfo.VssPath, isSuccess);
+
+					string moveDir = Path.GetDirectoryName(projPath);
+					if (moveDir != null && !Directory.Exists(moveDir))
 					{
 						Directory.CreateDirectory(moveDir);
 					}
 
-					string projFolder = GetSafeDirName(this.repoInfo.VssPath);
-					string projPath = Path.Combine(moveDir, projFolder);
 					try
 					{
 						Directory.Move(this.processDir, projPath);
