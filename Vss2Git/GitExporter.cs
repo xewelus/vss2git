@@ -642,16 +642,37 @@ namespace Hpdi.Vss2Git
             return user.ToLower().Replace(' ', '.') + "@" + emailDomain;
         }
 
+		private static readonly string[] toReplace =
+		{
+			"/", "..", " ", "~", "^", ":", "?", "*", "[", "]", "@{", "\\", "<", ">"
+		};
+
         private string GetTagFromLabel(string label)
         {
             // git tag names must be valid filenames, so replace sequences of
             // invalid characters with an underscore
-            var baseTag = Regex.Replace(label, "[^A-Za-z0-9_-]+", "_");
+            //var baseTag = Regex.Replace(label, "[^A-Za-z0-9_-]+", "_");
+            var baseTag = label;
 
-            // git tags are global, whereas VSS tags are local, so ensure
-            // global uniqueness by appending a number; since the file system
-            // may be case-insensitive, ignore case when hashing tags
-            var tag = baseTag;
+	        foreach (string str in toReplace)
+	        {
+		        baseTag = baseTag.Replace(str, "_");
+	        }
+
+	        if (baseTag.EndsWith("."))
+	        {
+		        baseTag += "_";
+	        }
+
+	        if (baseTag == "@")
+	        {
+		        baseTag = "_";
+	        }
+
+			// git tags are global, whereas VSS tags are local, so ensure
+			// global uniqueness by appending a number; since the file system
+			// may be case-insensitive, ignore case when hashing tags
+			var tag = baseTag;
             for (int i = 2; !tagsUsed.Add(tag.ToUpperInvariant()); ++i)
             {
                 tag = baseTag + "-" + i;
