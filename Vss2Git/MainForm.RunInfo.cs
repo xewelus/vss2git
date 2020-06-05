@@ -198,7 +198,7 @@ namespace Hpdi.Vss2Git
 				{
 					ICollection<Exception> exceptions = this.workQueue.FetchExceptions();
 
-					string moveDir = exceptions.Count == 0 ? "_success" : "_fail";
+					string moveDir = exceptions == null || exceptions.Count == 0 ? "_success" : "_fail";
 					moveDir = Path.Combine(this.outputDir, moveDir);
 
 					ClearDir(new DirectoryInfo(this.processDir), false, path => !path.StartsWith(".git"));
@@ -210,11 +210,33 @@ namespace Hpdi.Vss2Git
 
 					string projFolder = GetSafeDirName(this.repoInfo.VssPath);
 					string projPath = Path.Combine(moveDir, projFolder);
-					Directory.Move(this.processDir, projPath);
+					try
+					{
+						Directory.Move(this.processDir, projPath);
+					}
+					catch (Exception ex)
+					{
+						throw new Exception($"Ошибка при перемещении папки '{this.processDir}' в '{projPath}'.", ex);
+					}
+				
+					// move log file
+					this.repoInfo.Logger.Dispose();
+					this.repoInfo.Logger = null;
+
+					if (File.Exists(this.logFile))
+					{
+						string newLogPath = Path.Combine(projPath, "_vss2git.log");
+						File.Move(this.logFile, newLogPath);
+					}
 				}
 				catch (Exception ex)
 				{
-					this.errorLogger.WriteLine($"POSTPROCESS ERROR: {this.repoInfo.VssPath}\r\n{ex}");
+					string msg = $"POSTPROCESS ERROR: {this.repoInfo.VssPath}\r\n{ex}";
+					if (this.repoInfo.Logger != null)
+					{
+						this.repoInfo.Logger.WriteLine(msg);
+					}
+					this.errorLogger.WriteLine(msg);
 					throw;
 				}
 				finally
@@ -225,11 +247,6 @@ namespace Hpdi.Vss2Git
 						this.repoInfo = null;
 					}
 				}
-			}
-
-			public void PostProcessRepoFolder(string vssPath, bool isSuccess)
-			{
-				
 			}
 
 			public void Dispose()
@@ -253,7 +270,11 @@ namespace Hpdi.Vss2Git
 
 				public void Dispose()
 				{
-					this.Logger.Dispose();
+					if (this.Logger != null)
+					{
+						this.Logger.Dispose();
+						this.Logger = null;
+					}
 				}
 			}
 		}
