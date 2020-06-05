@@ -51,6 +51,22 @@ namespace Hpdi.Vss2Git
 			set;
 		}
 
+		public void RefreshProjects()
+		{
+			VssDatabaseFactory df = new VssDatabaseFactory(this.VSSDirectory);
+			df.Encoding = this.Encoding;
+			VssDatabase db = df.Open();
+
+			this.tvProjects.Nodes.Clear();
+			if (db.RootProject != null)
+			{
+				TreeNode node = this.AddNode(this.tvProjects.Nodes, db.RootProject, db.RootProject.Path);
+				node.Expand();
+			}
+
+			this.tvProjects.Enabled = true;
+		}
+
 		private void UpdateCheckedNodeNames()
 		{
 			this.internalUpdate = true;
@@ -90,18 +106,7 @@ namespace Hpdi.Vss2Git
 
 		private void btnRefreshProjects_Click(object sender, EventArgs e)
 		{
-			VssDatabaseFactory df = new VssDatabaseFactory(this.VSSDirectory);
-			df.Encoding = this.Encoding;
-			VssDatabase db = df.Open();
-
-			this.tvProjects.Nodes.Clear();
-			if (db.RootProject != null)
-			{
-				TreeNode node = this.AddNode(this.tvProjects.Nodes, db.RootProject, db.RootProject.Path);
-				node.Expand();
-			}
-
-			this.tvProjects.Enabled = true;
+			this.RefreshProjects();
 		}
 
 		private TreeNode AddNode(TreeNodeCollection nodes, VssProject project, string name)

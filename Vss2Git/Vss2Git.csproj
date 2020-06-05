@@ -68,6 +68,9 @@
     <Compile Include="AsyncLineReader.cs" />
     <Compile Include="CollectionUtil.cs" />
     <Compile Include="ChangesetBuilder.cs" />
+    <Compile Include="MainForm.RunInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ProcessException.cs" />
     <Compile Include="ExceptionFormatter.cs">
     </Compile>
