@@ -61,74 +61,9 @@ namespace Hpdi.Vss2Git
             }
 		}
 
-        public void Write(bool value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
         public void Write(char value)
         {
             if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-			this.commonLogger?.Write(value);
-        }
-
-		public void Write(char[] buffer)
-        {
-            if (baseStream != null && buffer != null)
-            {
-                Write(buffer, 0, buffer.Length);
-            }
-        }
-
-		public void Write(decimal value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(double value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(float value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(int value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(long value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(object value)
-        {
-            if (baseStream != null && value != null)
             {
                 Write(value.ToString());
             }
@@ -139,39 +74,6 @@ namespace Hpdi.Vss2Git
             if (baseStream != null && value != null)
             {
                 WriteInternal(value);
-                baseStream.Flush();
-            }
-        }
-
-		public void Write(uint value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(ulong value)
-        {
-            if (baseStream != null)
-            {
-                Write(value.ToString());
-            }
-        }
-
-		public void Write(string format, params object[] arg)
-        {
-            if (baseStream != null && arg != null)
-            {
-                Write(string.Format(formatProvider, format, arg));
-            }
-        }
-
-		public void Write(char[] buffer, int index, int count)
-        {
-            if (baseStream != null && buffer != null)
-            {
-                WriteInternal(buffer, index, count);
                 baseStream.Flush();
             }
         }
