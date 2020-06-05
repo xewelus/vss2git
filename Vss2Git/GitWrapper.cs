@@ -140,7 +140,13 @@ namespace Hpdi.Vss2Git
 
         public void Move(string sourcePath, string destPath)
         {
-            GitExec("mv -- " + Quote(sourcePath) + " " + Quote(destPath));
+	        if (!Directory.Exists(sourcePath)) return;
+	        string[] files = Directory.GetFiles(sourcePath);
+	        string[] dirs = Directory.GetDirectories(sourcePath);
+
+			if (files.Length == 0 && dirs.Length == 0) return;
+
+	        this.GitExec("mv -- " + this.Quote(sourcePath) + " " + this.Quote(destPath));
         }
 
         class TempFile : IDisposable
