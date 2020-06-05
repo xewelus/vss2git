@@ -739,7 +739,12 @@ namespace Hpdi.Vss2Git
 		        baseTag = baseTag.Replace(str, "_");
 	        }
 
-	        if (baseTag.EndsWith("."))
+	        if (baseTag.StartsWith("."))
+	        {
+		        baseTag = "_" + baseTag;
+	        }
+
+			if (baseTag.EndsWith("."))
 	        {
 		        baseTag += "_";
 	        }
