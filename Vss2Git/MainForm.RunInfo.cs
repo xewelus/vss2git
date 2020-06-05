@@ -201,6 +201,16 @@ namespace Hpdi.Vss2Git
 					ClearDir(new DirectoryInfo(this.processDir), false, path => !path.StartsWith(".git"));
 
 					ICollection<Exception> exceptions = this.workQueue.FetchExceptions();
+					if (exceptions != null)
+					{
+						foreach (Exception exception in exceptions)
+						{
+							string msg = $"[ERROR] {exception}";
+							this.repoInfo.Logger.WriteLine(msg);
+							this.errorLogger.WriteLine(msg);
+						}
+					}
+
 					bool isSuccess = exceptions == null || exceptions.Count == 0;
 					string projPath = GetProjectPath(this.outputDir, this.repoInfo.VssPath, isSuccess);
 
