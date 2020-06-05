@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
@@ -257,5 +258,22 @@ namespace Hpdi.Vss2Git
             settings.SameCommentSeconds = (int)sameCommentUpDown.Value;
             settings.Save();
         }
-    }
+
+		private void vssProjectTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (this.outDirTextBox.TextLength > 0)
+			{
+				string folder = Path.GetDirectoryName(this.outDirTextBox.Text);
+				if (folder != null)
+				{
+					string name = this.vssProjectTextBox.Text;
+					name = name.Replace("$/", "");
+					name = name.Replace("/", "_");
+					this.outDirTextBox.Text = Path.Combine(folder, name);
+
+					this.logTextBox.Text = name + ".log";
+				}
+			}
+		}
+	}
 }
