@@ -135,19 +135,25 @@ namespace Hpdi.Vss2Git
 
         public void Remove(string path, bool recursive)
         {
+	        if (!IsDirectoryNotEmpty(path)) return;
             GitExec("rm " + (recursive ? "-r " : "") + "-- " + Quote(path));
         }
 
         public void Move(string sourcePath, string destPath)
         {
-	        if (!Directory.Exists(sourcePath)) return;
-	        string[] files = Directory.GetFiles(sourcePath);
-	        string[] dirs = Directory.GetDirectories(sourcePath);
-
-			if (files.Length == 0 && dirs.Length == 0) return;
-
+	        if (!IsDirectoryNotEmpty(sourcePath)) return;
 	        this.GitExec("mv -- " + this.Quote(sourcePath) + " " + this.Quote(destPath));
         }
+
+	    private static bool IsDirectoryNotEmpty(string sourcePath)
+	    {
+		    if (!Directory.Exists(sourcePath)) return false;
+		    string[] files = Directory.GetFiles(sourcePath);
+		    string[] dirs = Directory.GetDirectories(sourcePath);
+
+		    if (files.Length == 0 && dirs.Length == 0) return false;
+		    return true;
+	    }
 
         class TempFile : IDisposable
         {
