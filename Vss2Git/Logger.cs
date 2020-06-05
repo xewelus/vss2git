@@ -38,7 +38,7 @@ namespace Hpdi.Vss2Git
         public Logger(string filename, Logger commonLogger)
             : this(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
-	        this.commonLogger = commonLogger ?? Null;
+	        this.commonLogger = commonLogger;
         }
 
         public Logger(Stream baseStream)
@@ -67,7 +67,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
         public void Write(char value)
@@ -76,7 +76,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(char[] buffer)
@@ -85,7 +85,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(buffer, 0, buffer.Length);
             }
-			this.commonLogger.Write(buffer);
+			this.commonLogger?.Write(buffer);
         }
 
 		public void Write(decimal value)
@@ -94,7 +94,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(double value)
@@ -103,7 +103,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(float value)
@@ -112,7 +112,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(int value)
@@ -121,7 +121,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(long value)
@@ -130,7 +130,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(object value)
@@ -139,7 +139,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(string value)
@@ -149,7 +149,7 @@ namespace Hpdi.Vss2Git
                 WriteInternal(value);
                 baseStream.Flush();
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(uint value)
@@ -158,7 +158,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(ulong value)
@@ -167,7 +167,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(value.ToString());
             }
-			this.commonLogger.Write(value);
+			this.commonLogger?.Write(value);
         }
 
 		public void Write(string format, params object[] arg)
@@ -176,7 +176,7 @@ namespace Hpdi.Vss2Git
             {
                 Write(string.Format(formatProvider, format, arg));
             }
-			this.commonLogger.Write(format, arg);
+			this.commonLogger?.Write(format, arg);
         }
 
 		public void Write(char[] buffer, int index, int count)
@@ -186,13 +186,13 @@ namespace Hpdi.Vss2Git
                 WriteInternal(buffer, index, count);
                 baseStream.Flush();
             }
-			this.commonLogger.Write(buffer, index, count);
+			this.commonLogger?.Write(buffer, index, count);
         }
 
 		public void WriteLine()
         {
             Write(Environment.NewLine);
-			this.commonLogger.WriteLine();
+			this.commonLogger?.WriteLine();
         }
 
         public void WriteLine(object value)
@@ -202,7 +202,7 @@ namespace Hpdi.Vss2Git
                 WriteInternal(value.ToString());
                 WriteLine();
             }
-			this.commonLogger.WriteLine(value);
+			this.commonLogger?.WriteLine(value);
         }
 
 		public void WriteLine(string value)
@@ -212,7 +212,7 @@ namespace Hpdi.Vss2Git
                 WriteInternal(value);
                 WriteLine();
             }
-			this.commonLogger.WriteLine(value);
+			this.commonLogger?.WriteLine(value);
         }
 
 		public void WriteLine(string format, params object[] arg)
@@ -222,13 +222,13 @@ namespace Hpdi.Vss2Git
                 WriteInternal(string.Format(formatProvider, format, arg));
                 WriteLine();
             }
-			this.commonLogger.WriteLine(format, arg);
+			this.commonLogger?.WriteLine(format, arg);
         }
 
 		public void WriteSectionSeparator()
         {
             WriteLine(sectionSeparator);
-			this.commonLogger.WriteSectionSeparator();
+			this.commonLogger?.WriteSectionSeparator();
         }
 
 		private void WriteInternal(string value)

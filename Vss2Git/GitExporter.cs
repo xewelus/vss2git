@@ -712,8 +712,8 @@ namespace Hpdi.Vss2Git
             }
             catch (Exception e)
             {
-                // log an error for missing data files or versions, but keep processing
-                var message = ExceptionFormatter.Format(e);
+				// log an error for missing data files or versions, but keep processing
+	            var message = ExceptionFormatter.Format(e, out _);
                 logger.WriteLine("ERROR: {0}", message);
                 logger.WriteLine(e);
                 return false;

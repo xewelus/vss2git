@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 using Hpdi.VssLogicalLib;
@@ -16,6 +17,8 @@ namespace Hpdi.Vss2Git
 
 		public event EventHandler CheckedChanged;
 
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string VSSDirectory
 		{
 			get;
@@ -23,6 +26,8 @@ namespace Hpdi.Vss2Git
 		}
 
 		private StringCollection selectedPaths;
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public StringCollection SelectedPaths
 		{
 			get
@@ -38,6 +43,8 @@ namespace Hpdi.Vss2Git
 			}
 		}
 
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Encoding Encoding
 		{
 			get;

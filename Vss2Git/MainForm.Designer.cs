@@ -67,8 +67,6 @@
 			this.domainLabel = new System.Windows.Forms.Label();
 			this.outDirTextBox = new System.Windows.Forms.TextBox();
 			this.outDirLabel = new System.Windows.Forms.Label();
-			this.logTextBox = new System.Windows.Forms.TextBox();
-			this.logLabel = new System.Windows.Forms.Label();
 			this.projectsTreeControl = new Hpdi.Vss2Git.ProjectsTreeControl();
 			this.vssGroupBox.SuspendLayout();
 			this.statusStrip.SuspendLayout();
@@ -282,7 +280,7 @@
 			this.changesetGroupBox.Controls.Add(this.label2);
 			this.changesetGroupBox.Controls.Add(this.label1);
 			this.changesetGroupBox.Controls.Add(this.anyCommentUpDown);
-			this.changesetGroupBox.Location = new System.Drawing.Point(5, 160);
+			this.changesetGroupBox.Location = new System.Drawing.Point(5, 135);
 			this.changesetGroupBox.Name = "changesetGroupBox";
 			this.changesetGroupBox.Size = new System.Drawing.Size(560, 75);
 			this.changesetGroupBox.TabIndex = 4;
@@ -362,11 +360,9 @@
 			this.outputGroupBox.Controls.Add(this.domainLabel);
 			this.outputGroupBox.Controls.Add(this.outDirTextBox);
 			this.outputGroupBox.Controls.Add(this.outDirLabel);
-			this.outputGroupBox.Controls.Add(this.logTextBox);
-			this.outputGroupBox.Controls.Add(this.logLabel);
 			this.outputGroupBox.Location = new System.Drawing.Point(5, 4);
 			this.outputGroupBox.Name = "outputGroupBox";
-			this.outputGroupBox.Size = new System.Drawing.Size(560, 150);
+			this.outputGroupBox.Size = new System.Drawing.Size(560, 128);
 			this.outputGroupBox.TabIndex = 3;
 			this.outputGroupBox.TabStop = false;
 			this.outputGroupBox.Text = "Output Settings";
@@ -374,7 +370,7 @@
 			// ignoreErrorsCheckBox
 			// 
 			this.ignoreErrorsCheckBox.AutoSize = true;
-			this.ignoreErrorsCheckBox.Location = new System.Drawing.Point(431, 123);
+			this.ignoreErrorsCheckBox.Location = new System.Drawing.Point(431, 100);
 			this.ignoreErrorsCheckBox.Name = "ignoreErrorsCheckBox";
 			this.ignoreErrorsCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.ignoreErrorsCheckBox.Size = new System.Drawing.Size(101, 17);
@@ -386,7 +382,7 @@
 			// 
 			this.commentTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.commentTextBox.Location = new System.Drawing.Point(94, 97);
+			this.commentTextBox.Location = new System.Drawing.Point(94, 72);
 			this.commentTextBox.Name = "commentTextBox";
 			this.commentTextBox.Size = new System.Drawing.Size(460, 20);
 			this.commentTextBox.TabIndex = 6;
@@ -394,7 +390,7 @@
 			// commentLabel
 			// 
 			this.commentLabel.AutoSize = true;
-			this.commentLabel.Location = new System.Drawing.Point(6, 100);
+			this.commentLabel.Location = new System.Drawing.Point(6, 75);
 			this.commentLabel.Name = "commentLabel";
 			this.commentLabel.Size = new System.Drawing.Size(87, 13);
 			this.commentLabel.TabIndex = 8;
@@ -405,7 +401,7 @@
 			this.forceAnnotatedCheckBox.AutoSize = true;
 			this.forceAnnotatedCheckBox.Checked = true;
 			this.forceAnnotatedCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.forceAnnotatedCheckBox.Location = new System.Drawing.Point(224, 123);
+			this.forceAnnotatedCheckBox.Location = new System.Drawing.Point(224, 100);
 			this.forceAnnotatedCheckBox.Name = "forceAnnotatedCheckBox";
 			this.forceAnnotatedCheckBox.Size = new System.Drawing.Size(191, 17);
 			this.forceAnnotatedCheckBox.TabIndex = 7;
@@ -417,7 +413,7 @@
 			this.transcodeCheckBox.AutoSize = true;
 			this.transcodeCheckBox.Checked = true;
 			this.transcodeCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.transcodeCheckBox.Location = new System.Drawing.Point(9, 123);
+			this.transcodeCheckBox.Location = new System.Drawing.Point(9, 100);
 			this.transcodeCheckBox.Name = "transcodeCheckBox";
 			this.transcodeCheckBox.Size = new System.Drawing.Size(209, 17);
 			this.transcodeCheckBox.TabIndex = 6;
@@ -460,33 +456,13 @@
 			this.outDirLabel.TabIndex = 0;
 			this.outDirLabel.Text = "Directory";
 			// 
-			// logTextBox
-			// 
-			this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.logTextBox.Location = new System.Drawing.Point(94, 71);
-			this.logTextBox.Name = "logTextBox";
-			this.logTextBox.Size = new System.Drawing.Size(460, 20);
-			this.logTextBox.TabIndex = 5;
-			// 
-			// logLabel
-			// 
-			this.logLabel.AutoSize = true;
-			this.logLabel.Location = new System.Drawing.Point(6, 74);
-			this.logLabel.Name = "logLabel";
-			this.logLabel.Size = new System.Drawing.Size(41, 13);
-			this.logLabel.TabIndex = 4;
-			this.logLabel.Text = "Log file";
-			// 
 			// projectsTreeControl
 			// 
 			this.projectsTreeControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectsTreeControl.Encoding = null;
 			this.projectsTreeControl.Location = new System.Drawing.Point(3, 16);
 			this.projectsTreeControl.Name = "projectsTreeControl";
 			this.projectsTreeControl.Size = new System.Drawing.Size(554, 464);
 			this.projectsTreeControl.TabIndex = 1;
-			this.projectsTreeControl.VSSDirectory = null;
 			this.projectsTreeControl.CheckedChanged += new System.EventHandler(this.projectsTreeControl_CheckedChanged);
 			// 
 			// MainForm
@@ -565,8 +541,6 @@
 		private System.Windows.Forms.Label domainLabel;
 		private System.Windows.Forms.TextBox outDirTextBox;
 		private System.Windows.Forms.Label outDirLabel;
-		private System.Windows.Forms.TextBox logTextBox;
-		private System.Windows.Forms.Label logLabel;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private ProjectsTreeControl projectsTreeControl;
 	}

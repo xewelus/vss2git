@@ -223,9 +223,11 @@ namespace Hpdi.Vss2Git
             }
             catch (RecordException e)
             {
-                var message = string.Format("Failed to read revisions for {0} ({1}): {2}",
-                    path, item.PhysicalName, ExceptionFormatter.Format(e));
-                LogException(e, message);
+	            bool isknown;
+	            var message = string.Format("Failed to read revisions for {0} ({1}): {2}",
+                    path, item.PhysicalName, ExceptionFormatter.Format(e, out isknown));
+	            message = isknown ? message : e.ToString();
+                LogException(e);
                 ReportError(message);
             }
         }
