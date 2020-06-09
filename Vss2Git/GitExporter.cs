@@ -282,7 +282,7 @@ namespace Hpdi.Vss2Git
                     logger.WriteLine("NOTE: {0} is currently unmapped", project);
                 }
 
-                VssItemName target = null;
+				VssItemName target = null;
                 string targetPath = null;
                 var namedAction = revision.Action as VssNamedAction;
                 if (namedAction != null)
@@ -290,7 +290,7 @@ namespace Hpdi.Vss2Git
                     target = namedAction.Name;
                     if (projectPath != null)
                     {
-                        targetPath = Path.Combine(projectPath, target.LogicalName);
+                        targetPath = Path.Combine(projectPath.Trim(' '), target.LogicalName);
                     }
                 }
 
@@ -311,7 +311,7 @@ namespace Hpdi.Vss2Git
 
                     case VssActionType.Add:
                     case VssActionType.Share:
-                        logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.LogicalName);
+						logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.LogicalName);
                         itemInfo = pathMapper.AddItem(project, target);
                         isAddAction = true;
                         break;
@@ -377,7 +377,8 @@ namespace Hpdi.Vss2Git
                             if (targetPath != null && !itemInfo.Destroyed)
                             {
                                 var sourcePath = Path.Combine(projectPath, renameAction.OriginalName);
-                                if (target.IsProject ? Directory.Exists(sourcePath) : File.Exists(sourcePath))
+	                            sourcePath = sourcePath.Trim(' ');
+								if (target.IsProject ? Directory.Exists(sourcePath) : File.Exists(sourcePath))
                                 {
                                     // renaming a file or a project that contains files?
                                     var projectInfo = itemInfo as VssProjectInfo;
