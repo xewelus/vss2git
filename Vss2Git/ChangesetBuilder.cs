@@ -57,6 +57,8 @@ namespace Hpdi.Vss2Git
             this.revisionAnalyzer = revisionAnalyzer;
         }
 
+		private readonly Dictionary<string, string> parents = new Dictionary<string, string>();
+
         public void BuildChangesets()
         {
             workQueue.AddLast(delegate(object work)
@@ -79,6 +81,11 @@ namespace Hpdi.Vss2Git
                         {
                             targetFile = namedAction.Name.PhysicalName;
                         }
+
+	                    if (actionType == VssActionType.Add)
+	                    {
+		                    this.parents[targetFile] = revision.Item.PhysicalName;
+	                    }
 
                         // Create actions are only used to obtain initial item comments;
                         // items are actually created when added to a project
@@ -124,12 +131,22 @@ namespace Hpdi.Vss2Git
                                     flush = true;
                                 }
                             }
-                            else if (!nonconflicting && change.TargetFiles.Contains(targetFile))
+                            else if (!nonconflicting)
                             {
-                                logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0}:",
-                                    targetFile);
-                                flush = true;
-                            }
+	                            if (change.TargetFiles.Contains(targetFile))
+	                            {
+		                            this.logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0}:", targetFile);
+		                            flush = true;
+	                            }
+								else if (actionType == VssActionType.Delete)
+	                            {
+		                            if (this.HasParents(targetFile, change.TargetFiles))
+		                            {
+			                            this.logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0} (deleting):", targetFile);
+			                            flush = true;
+		                            }
+	                            }
+							}
 
                             if (flush)
                             {
@@ -205,6 +222,39 @@ namespace Hpdi.Vss2Git
                     changesets.Count, new DateTime(stopwatch.ElapsedTicks));
             });
         }
+
+	    private bool HasParents(string parent, HashSet<string> targetFiles)
+	    {
+		    foreach (string file in targetFiles)
+		    {
+			    foreach (string p in this.GetParents(file))
+			    {
+				    if (p == parent)
+				    {
+					    return true;
+				    }
+			    }
+		    }
+		    return false;
+	    }
+
+	    private IEnumerable<string> GetParents(string phisicalName)
+	    {
+		    string currentName = phisicalName;
+		    while (true)
+		    {
+			    string result;
+			    if (this.parents.TryGetValue(currentName, out result))
+			    {
+				    yield return result;
+				    currentName = result;
+			    }
+			    else
+			    {
+				    break;
+			    }
+		    }
+	    }
 
         private bool HasSameComment(Revision rev1, Revision rev2)
         {
