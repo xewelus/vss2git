@@ -86,26 +86,42 @@ namespace Hpdi.Vss2Git
 
 		public void RefreshProjects()
 		{
-			VssDatabaseFactory df = new VssDatabaseFactory(this.VSSDirectory);
-			df.Encoding = this.Encoding;
-			VssDatabase db = df.Open();
-
-			this.projectsByPaths.Clear();
-			this.tvProjects.Nodes.Clear();
-			if (db.RootProject != null)
+			try
 			{
-				TreeNode node = this.AddNode(this.tvProjects.Nodes, db.RootProject, db.RootProject.Path);
-				node.Expand();
-			}
+				this.internalUpdate = true;
 
-			this.tvProjects.Enabled = true;
+				VssDatabaseFactory df = new VssDatabaseFactory(this.VSSDirectory);
+				df.Encoding = this.Encoding;
+				VssDatabase db = df.Open();
+
+				this.projectsByPaths.Clear();
+				this.tvProjects.Nodes.Clear();
+				if (db.RootProject != null)
+				{
+					TreeNode node = this.AddNode(this.tvProjects.Nodes, db.RootProject, db.RootProject.Path);
+					node.Expand();
+				}
+
+				this.tvProjects.Enabled = true;
+			}
+			finally
+			{
+				this.internalUpdate = false;
+			}
 		}
 
 		public void UpdateNodes()
 		{
-			this.internalUpdate = true;
-			this.UpdateNodes(this.selectedPaths, this.tvProjects.Nodes);
-			this.internalUpdate = false;
+			bool prev = this.internalUpdate;
+			try
+			{
+				this.internalUpdate = true;
+				this.UpdateNodes(this.selectedPaths, this.tvProjects.Nodes);
+			}
+			finally
+			{
+				this.internalUpdate = prev;
+			}
 		}
 
 		public List<MainForm.ProjectInfo> GetSelectedProjects()
@@ -272,7 +288,11 @@ namespace Hpdi.Vss2Git
 		private void tvProjects_BeforeCheck(object sender, TreeViewCancelEventArgs e)
 		{
 			if (this.internalUpdate) return;
-			if (!this.CanCheck) return;
+			if (!this.CanCheck)
+			{
+				e.Cancel = true;
+				return;
+			}
 
 			NodeInfo info = (NodeInfo)e.Node.Tag;
 			if (info.Project == null)
@@ -308,6 +328,23 @@ namespace Hpdi.Vss2Git
 				}
 				return new MainForm.VssKey(this.Project.Path, null);
 			}
+		}
+	}
+
+	public class FixesTreeView : TreeView
+	{
+		protected override void WndProc(ref Message m)
+		{
+			if (m.Msg == 0x203) // identified double click
+			{
+				var localPos = this.PointToClient(Cursor.Position);
+				var hitTestInfo = this.HitTest(localPos);
+				if (hitTestInfo.Location == TreeViewHitTestLocations.StateImage)
+					m.Result = IntPtr.Zero;
+				else
+					base.WndProc(ref m);
+			}
+			else base.WndProc(ref m);
 		}
 	}
 }

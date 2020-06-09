@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.tvProjects = new System.Windows.Forms.TreeView();
+			this.tvProjects = new FixesTreeView();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.btnRefreshProjects = new System.Windows.Forms.Button();
 			this.panel1.SuspendLayout();
@@ -81,7 +81,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TreeView tvProjects;
+		private FixesTreeView tvProjects;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button btnRefreshProjects;
 	}
