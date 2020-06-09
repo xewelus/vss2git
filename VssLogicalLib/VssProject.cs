@@ -53,31 +53,41 @@ namespace Hpdi.VssLogicalLib
             return (VssProjectRevision)base.GetRevision(version);
         }
 
-	    public VssProject FindProject(string name, string physicalName)
-	    {
-		    foreach (VssProject subproject in Projects)
-		    {
-			    if (name == subproject.Name && (physicalName == null || physicalName == subproject.PhysicalName))
-			    {
-				    return subproject;
-			    }
-		    }
-		    return null;
-	    }
+        public VssProject FindProject(string name)
+        {
+            foreach (VssProject subproject in Projects)
+            {
+                if (name == subproject.Name)
+                {
+                    return subproject;
+                }
+            }
+            return null;
+        }
 
-	    public VssFile FindFile(string name)
-	    {
-		    foreach (VssFile file in Files)
-		    {
-			    if (name == file.Name)
-			    {
-				    return file;
-			    }
-		    }
-		    return null;
-	    }
+        public VssFile FindFile(string name)
+        {
+            foreach (VssFile file in Files)
+            {
+                if (name == file.Name)
+                {
+                    return file;
+                }
+            }
+            return null;
+        }
 
-		internal VssProject(VssDatabase database, VssItemName itemName,
+        public VssItem FindItem(string name)
+        {
+            var project = FindProject(name);
+            if (project != null)
+            {
+                return project;
+            }
+            return FindFile(name);
+        }
+
+        internal VssProject(VssDatabase database, VssItemName itemName,
             string physicalPath, string logicalPath)
             : base(database, itemName, physicalPath)
         {

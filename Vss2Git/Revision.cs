@@ -71,5 +71,10 @@ namespace Hpdi.Vss2Git
             this.comment = comment;
             this.action = action;
         }
+
+	    public override string ToString()
+	    {
+		    return string.Format($"Rev {this.Action} {this.Item}");
+	    }
     }
 }

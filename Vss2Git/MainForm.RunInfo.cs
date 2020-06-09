@@ -21,7 +21,7 @@ namespace Hpdi.Vss2Git
 			private readonly Encoding selectedEncoding;
 			private readonly Logger errorLogger;
 			private readonly WorkQueue workQueue;
-			private readonly Queue<VssKey> toProcess;
+			private readonly Queue<ProjectInfo> toProcess;
 			private RepoInfo repoInfo;
 			private bool Canceled;
 
@@ -38,7 +38,7 @@ namespace Hpdi.Vss2Git
 				Encoding selectedEncoding,
 				Logger errorLogger,
 				WorkQueue workQueue,
-				Queue<VssKey> toProcess)
+				Queue<ProjectInfo> toProcess)
 			{
 				this.form = form;
 				this.outputDir = outputDir;
@@ -57,13 +57,13 @@ namespace Hpdi.Vss2Git
 				if (this.Canceled) return false;
 				if (this.toProcess.Count <= 0) return false;
 
-				VssKey vssKey = this.toProcess.Dequeue();
+				ProjectInfo projectInfo = this.toProcess.Dequeue();
 
-				this.Process(vssKey);
+				this.Process(projectInfo);
 				return true;
 			}
 
-			private void Process(VssKey vssKey)
+			private void Process(ProjectInfo projectInfo)
 			{
 				// clear processing folder and delete processing log file
 				this.DeleteProcessingFolderAndLog();
@@ -72,49 +72,29 @@ namespace Hpdi.Vss2Git
 
 				try
 				{
-					this.ProcessPath(vssKey, logger);
+					this.ProcessProject(projectInfo, logger);
 				}
 				catch (Exception ex)
 				{
-					string msg = $"ERROR: {vssKey}\r\n{ex}";
+					string msg = $"ERROR: {projectInfo.VssKey}\r\n{ex}";
 
 					this.errorLogger.WriteLine(msg);
 					logger.WriteLine(msg);
+
+					logger.Dispose();
 				}
 			}
 
-			private void ProcessPath(VssKey vssKey, Logger logger)
+			private void ProcessProject(ProjectInfo projectInfo, Logger logger)
 			{
-				string vssPath = vssKey.VssPath;
-
-				VssItem item;
-				try
-				{
-					item = this.db.GetItem(vssPath, vssKey.PhysicalName);
-				}
-				catch (VssPathException ex)
-				{
-					MessageBox.Show(ex.Message, "Invalid project path", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-
-				VssProject project = (VssProject)item;
-				if (project == null)
-				{
-					MessageBox.Show(vssPath + " is not a project", "Invalid project path", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-
-				this.repoInfo = new RepoInfo();
-				this.repoInfo.VssKey = vssKey;
-				this.repoInfo.Logger = logger;
+				this.repoInfo = new RepoInfo(logger, projectInfo.VssKey, projectInfo.Project);
 
 				this.repoInfo.RevisionAnalyzer = new RevisionAnalyzer(this.workQueue, logger, this.db);
 				if (!string.IsNullOrEmpty(this.form.excludeTextBox.Text))
 				{
 					this.repoInfo.RevisionAnalyzer.ExcludeFiles = this.form.excludeTextBox.Text;
 				}
-				this.repoInfo.RevisionAnalyzer.AddItem(project);
+				this.repoInfo.RevisionAnalyzer.AddItem(projectInfo.Project);
 
 				this.repoInfo.ChangesetBuilder = new ChangesetBuilder(this.workQueue, logger, this.repoInfo.RevisionAnalyzer);
 				this.repoInfo.ChangesetBuilder.AnyCommentThreshold = TimeSpan.FromSeconds((double)this.form.anyCommentUpDown.Value);
@@ -232,8 +212,7 @@ namespace Hpdi.Vss2Git
 					}
 				
 					// move log file
-					this.repoInfo.Logger.Dispose();
-					this.repoInfo.Logger = null;
+					this.repoInfo.Dispose();
 
 					if (File.Exists(this.logFile))
 					{
@@ -297,9 +276,17 @@ namespace Hpdi.Vss2Git
 			{
 				public RevisionAnalyzer RevisionAnalyzer;
 				public ChangesetBuilder ChangesetBuilder;
-				public Logger Logger;
-				public VssKey VssKey;
+				public Logger Logger { get; private set; }
+				public readonly VssKey VssKey;
+				public readonly VssProject Project;
 				public bool Canceled;
+
+				public RepoInfo(Logger logger, VssKey vssKey, VssProject project)
+				{
+					this.Logger = logger;
+					this.VssKey = vssKey;
+					this.Project = project;
+				}
 
 				public void Dispose()
 				{
@@ -317,7 +304,13 @@ namespace Hpdi.Vss2Git
 			public readonly string VssPath;
 			public readonly string PhysicalName;
 
-			public VssKey(string path)
+			public VssKey(string vssPath, string physicalName)
+			{
+				this.VssPath = vssPath;
+				this.PhysicalName = physicalName;
+			}
+
+			public static VssKey FromCombinedPath(string path)
 			{
 				string[] parts = path.Split('|');
 				string vssPath = parts[0];
@@ -326,14 +319,7 @@ namespace Hpdi.Vss2Git
 				{
 					physicalName = parts[1];
 				}
-				this.VssPath = vssPath;
-				this.PhysicalName = physicalName;
-			}
-
-			public VssKey(string vssPath, string physicalName)
-			{
-				this.VssPath = vssPath;
-				this.PhysicalName = physicalName;
+				return new VssKey(vssPath, physicalName);
 			}
 
 			public string ToCombinedPath()
@@ -352,6 +338,18 @@ namespace Hpdi.Vss2Git
 					return this.VssPath;
 				}
 				return $"{this.VssPath} ({this.PhysicalName})";
+			}
+		}
+
+		public class ProjectInfo
+		{
+			public readonly VssKey VssKey;
+			public readonly VssProject Project;
+
+			public ProjectInfo(VssKey vssKey, VssProject project)
+			{
+				this.VssKey = vssKey;
+				this.Project = project;
 			}
 		}
 	}

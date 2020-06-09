@@ -54,7 +54,7 @@ namespace Hpdi.Vss2Git
 			get
 			{
 				StringCollection collection = new StringCollection();
-				this.CollectCheckedNodeNames(collection, this.tvProjects.Nodes);
+				CollectChecked(collection, null, this.tvProjects.Nodes, this.projectsByPaths);
 				this.selectedPaths = collection;
 				return collection;
 			}
@@ -108,7 +108,14 @@ namespace Hpdi.Vss2Git
 			this.internalUpdate = false;
 		}
 
-		private void CollectCheckedNodeNames(StringCollection collection, TreeNodeCollection nodes)
+		public List<MainForm.ProjectInfo> GetSelectedProjects()
+		{
+			List<MainForm.ProjectInfo> projects = new List<MainForm.ProjectInfo>();
+			CollectChecked(null, projects, this.tvProjects.Nodes, this.projectsByPaths);
+			return projects;
+		}
+
+		private static void CollectChecked(StringCollection collection, List<MainForm.ProjectInfo> projects, TreeNodeCollection nodes, Dictionary<string, List<VssProject>> projectsByPaths)
 		{
 			foreach (TreeNode node in nodes)
 			{
@@ -117,12 +124,20 @@ namespace Hpdi.Vss2Git
 					NodeInfo info = (NodeInfo)node.Tag;
 					if (info.Project != null)
 					{
-						MainForm.VssKey vssKey = info.GetKey(this.projectsByPaths);
-						collection.Add(vssKey.ToCombinedPath());
+						MainForm.VssKey vssKey = info.GetKey(projectsByPaths);
+						if (collection != null)
+						{
+							collection.Add(vssKey.ToCombinedPath());
+						}
+
+						if (projects != null)
+						{
+							projects.Add(new MainForm.ProjectInfo(vssKey, info.Project));
+						}
 					}
 				}
 
-				this.CollectCheckedNodeNames(collection, node.Nodes);
+				CollectChecked(collection, projects, node.Nodes, projectsByPaths);
 			}
 		}
 
@@ -156,7 +171,8 @@ namespace Hpdi.Vss2Git
 
 					foreach (string projPath in collection)
 					{
-						if (projPath == info.Project.Path)
+						string combinedPath = key.ToCombinedPath();
+						if (projPath == combinedPath)
 						{
 							node.Checked = true;
 						}

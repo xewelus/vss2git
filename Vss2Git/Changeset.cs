@@ -57,5 +57,10 @@ namespace Hpdi.Vss2Git
         {
             get { return targetFiles; }
         }
+
+	    public override string ToString()
+	    {
+		    return $"Changeset {this.DateTime} {this.User} revs: {this.Revisions.Count}, files: {this.TargetFiles.Count}";
+	    }
     }
 }

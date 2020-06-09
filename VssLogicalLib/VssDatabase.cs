@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Hpdi.VssPhysicalLib;
@@ -64,16 +63,17 @@ namespace Hpdi.VssLogicalLib
             get { return encoding; }
         }
 
-        public VssItem GetItem(string logicalPath, string physicalName)
+        public VssItem GetItem(string logicalPath)
         {
-			var segments = logicalPath.Split(new char[] { ProjectSeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = logicalPath.Split(new char[] { ProjectSeparatorChar },
+                StringSplitOptions.RemoveEmptyEntries);
             var index = segments[0] == RootProjectName ? 1 : 0;
             VssProject project = rootProject;
             while (index < segments.Length)
             {
                 var name = segments[index++];
 
-	            var subproject = project.FindProject(name, physicalName);
+                var subproject = project.FindProject(name);
                 if (subproject != null)
                 {
                     project = subproject;

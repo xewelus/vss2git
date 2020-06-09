@@ -100,19 +100,17 @@ namespace Hpdi.Vss2Git
                 commonLogger.WriteLine("Comment transcoding: {0}", this.transcodeCheckBox.Checked ? "enabled" : "disabled");
                 commonLogger.WriteLine("Ignore errors: {0}", this.ignoreErrorsCheckBox.Checked ? "enabled" : "disabled");
 
-                VssDatabaseFactory df = new VssDatabaseFactory(this.vssDirTextBox.Text);
-                df.Encoding = this.selectedEncoding;
-                VssDatabase db = df.Open();
-
-	            Queue<VssKey> toProcess = new Queue<VssKey>();
-	            foreach (string path in this.projectsTreeControl.SelectedPaths)
+	            List<ProjectInfo> projects = this.projectsTreeControl.GetSelectedProjects();
+	            Queue<ProjectInfo> toProcess = new Queue<ProjectInfo>();
+	            VssDatabase db = null;
+	            foreach (ProjectInfo projectInfo in projects)
 	            {
-					VssKey vssKey = new VssKey(path);
-					string projPath = GetProjectPath(outputDir, vssKey, true);
+					string projPath = GetProjectPath(outputDir, projectInfo.VssKey, true);
 		            if (!Directory.Exists(projPath))
 		            {
-			            toProcess.Enqueue(vssKey);
-		            }
+			            db = projectInfo.Project.Database;
+						toProcess.Enqueue(projectInfo);
+					}
 				}
 
 				this.runInfo = new RunInfo(this, outputDir, commonLogger, db, encoding, errorLogger, this.workQueue, toProcess);
