@@ -592,13 +592,21 @@ namespace Hpdi.Vss2Git
             {
                 if (projectSpec.StartsWith(rootInfo.OriginalVssPath))
                 {
-                    var rootLength = rootInfo.OriginalVssPath.Length;
-                    if (!rootInfo.OriginalVssPath.EndsWith("/"))
-                    {
-                        ++rootLength;
-                    }
-                    var subpath = projectSpec.Substring(rootLength);
-                    var subprojectNames = subpath.Split('/');
+	                string subpath;
+	                if (projectSpec == rootInfo.OriginalVssPath)
+	                {
+		                subpath = rootInfo.OriginalVssPath;
+	                }
+	                else
+	                {
+		                var rootLength = rootInfo.OriginalVssPath.Length;
+		                if (!rootInfo.OriginalVssPath.EndsWith("/"))
+		                {
+			                ++rootLength;
+		                }
+						subpath = projectSpec.Substring(rootLength);
+	                }
+					var subprojectNames = subpath.Split('/');
                     var projectInfo = rootInfo;
                     foreach (var subprojectName in subprojectNames)
                     {
