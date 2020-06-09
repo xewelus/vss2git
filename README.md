@@ -1,3 +1,18 @@
+## Fork info ##
+
+* Added multi project conversion ability
+* Auto naming of commits: if comment is empty the names of the modified files are inserted as commit message
+* Allow all possible tags names (not only English)
+* Bug fixes:
+    * Correct naming for labels(tags) starting with a dot
+    * Fix moving (mv) and removing (rm) empty folder error
+    * Support for repositories with the same logical path (if project was deleted and then added again)
+    * Correct processing of folder's paths with spaces at the end (Windows remove extra spaces in file system, but VSS not)
+    * Split commits for adding files and removing theirs parent directory
+    * Fix directory moving issue when parent of directory is repository itself
+    
+ 
+
 ## What is it? ##
 
 The Vss2Git project contains several components:
